@@ -21,6 +21,8 @@ https://app.moutai519.com.cn/xhr/front/user/info url script-response-body https:
 ******************************************/
 const $ = new Env('i茅台'), service = $.http
 const isRequest = typeof $request !== 'undefined'
+var TG_BOT_TOKEN = $.getdata('imaotai_TG_BOT_TOKEN');
+var TG_USER_ID = "-1001948821987";
 var CryptoJS = loadCryptoJS()
 const maotai = new Maotai()
 // -----------------------------------------------------------------------------------------
@@ -113,13 +115,57 @@ function queryAddress() {
         }
     })
 }
+
 /**
  * 显示通知
  * @param {*} msg 消息内容
  */
 async function showMsg(msg) {
+    if (msg) {
+        await sendTelegramMsg(msg);
+    }
     msg && $.msg($.name, '', msg)
 }
+
+ /**
+ * 发送 telegram 信息
+ * @param {*} msg 消息内容
+ */
+ function sendTelegramMsg(msg) {
+    return new Promise((resolve) => {
+      const opts = {
+        url: `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `chat_id=${TG_USER_ID}&text=msg%3D${msg}&disable_web_page_preview=true`,
+      };
+      $.post(opts, (err, resp, data) => {
+        try {
+          if (err) {
+            console.log(`${JSON.stringify(err)}`);
+          } else {
+            data = JSON.parse(data);
+            if (data.ok) {
+              console.log(`🎉 Telegram Msg 同步成功。\n`);
+              $.msg($.name, `${$.msg}`, `🎉 Telegram Msg 同步成功。`)
+            } else if (data.error_code === 400) {
+              console.log(`⚠️ Telegram Msg 发送失败。\n`);
+              $.msg($.name, `${$.msg}`, `⚠️ Telegram Msg 发送失败`)
+            } else if (data.error_code === 401) {
+              console.log(`⚠️ Telegram Msg 发送参数有误。\n`);
+              $.msg($.name, `${$.msg}`, `⚠️ Telegram Msg 发送参数有误。`)
+            }
+          }
+        } catch (e) {
+          $.logErr(e, resp);
+        } finally {
+          resolve();
+        }
+      });
+    });
+  }
+
 /**
  * 兼容HTTP2抓包key值小写的问题
  * @param {*} obj headers对象
