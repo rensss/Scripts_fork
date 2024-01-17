@@ -93,10 +93,14 @@ var yesterdayReserveList = JSON.parse($.getdata(`imaotai_${yesterdayStr}_reserve
     }
     await showMsg(Message)
 })()
-    .catch((e) => $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, ''))
+    // .catch((e) => $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, ''))
     // .finally(() => $.done())
+    .catch((e) => {
+        var str = `❌ ${$.name}, 失败! 原因: ${e}!`
+        sendTelegramMsg(str)
+        $.log('', str, '')
+    })
     .finally(async () => {
-        console.log(`finally block\n`)
         await sendTelegramMsg(Message)
         $.done()
     })
@@ -139,7 +143,13 @@ async function showMsg(msg) {
 * @param {*} msg 消息内容
 */
 function sendTelegramMsg(msg) {
-    console.log(`\nstart send telegram msg\n`)
+    // console.log(`\nstart send telegram msg\n`)
+    if (!msg || msg.trim() === '') {
+        msg = 'msg is null'
+    }
+    // console.log(`\n${msg}\n`)
+    const currentTime = new Date().toLocaleString();
+    msg += `---- ${currentTime}`
     return new Promise((resolve) => {
         const opts = {
             url: `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`,
