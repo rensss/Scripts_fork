@@ -22,6 +22,7 @@ https://app.moutai519.com.cn/xhr/front/user/info url script-response-body https:
 const $ = new Env('i茅台'), service = $.http
 const isRequest = typeof $request !== 'undefined'
 var TG_BOT_TOKEN = $.getdata('imaotai_TG_BOT_TOKEN');
+var TG_BOT_TOKEN = "6236760057:AAEjuuA7o1cahnmve2TyNFZMojTVgttC-Go";
 var TG_USER_ID = "-1001948821987";
 var CryptoJS = loadCryptoJS()
 const maotai = new Maotai()
@@ -85,13 +86,20 @@ var yesterdayReserveList = JSON.parse($.getdata(`imaotai_${yesterdayStr}_reserve
     var isApply = await maotai.isTodayApply() // 今日是否申购过
     if (isApply) {
         await maotai.doTravel() // 旅行
+        await maotai.sendTelegramMsg(Message)
     } else {
         await maotai.doMain() // 预约
+        await maotai.sendTelegramMsg(Message)
     }
     await showMsg(Message)
 })()
     .catch((e) => $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, ''))
-    .finally(() => $.done())
+    // .finally(() => $.done())
+    .finally(async () => {
+        console.log(`finally block\n`)
+        await sendTelegramMsg(Message)
+        $.done()
+    })
 /**
  * 根据详细地址查询经纬度
  */
@@ -121,6 +129,7 @@ function queryAddress() {
  * @param {*} msg 消息内容
  */
 async function showMsg(msg) {
+    console.log(`\nshowMsg\n`)
     msg && $.msg($.name, '', msg)
     await sendTelegramMsg(msg);
 }
@@ -130,6 +139,7 @@ async function showMsg(msg) {
 * @param {*} msg 消息内容
 */
 function sendTelegramMsg(msg) {
+    console.log(`\nstart send telegram msg\n`)
     return new Promise((resolve) => {
         const opts = {
             url: `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`,
