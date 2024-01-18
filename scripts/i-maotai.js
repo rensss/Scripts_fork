@@ -1,10 +1,10 @@
 /******************************************
  * @name i茅台预约
- * @channel https://t.me/yqc_123/
- * @feedback https://t.me/yqc_777/
- * @author 𝒀𝒖𝒉𝒆𝒏𝒈
- * @update 20231011
- * @version 1.0.1
+ * @channel 
+ * @feedback 
+ * @author Odin
+ * @update 20240118
+ * @version 1.0.2
  ******************************************
 ###详细见同目录README
 ```Quantumult X
@@ -12,28 +12,27 @@
 hostname = app.moutai519.com.cn
 
 [rewrite_local]
-https://app.moutai519.com.cn/xhr/front/user/info url script-response-body https://raw.githubusercontent.com/Yuheng0101/X/main/Tasks/imaotai/imaotai.js
+https://app.moutai519.com.cn/xhr/front/user/info url script-response-body https://raw.githubusercontent.com/rensss/Scripts_fork/main/scripts/i-maotai.js
 
 [task_local]
 # 茅台自动预约
-0,30 9-20 * * * https://raw.githubusercontent.com/Yuheng0101/X/main/Tasks/imaotai/imaotai.js, tag=i茅台自动预约, img-url=https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/ae/f4/18/aef41811-955e-e6b0-5d23-6763c2eef1ab/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/144x144.png, enabled=true
+0,30 9-20 * * * https://raw.githubusercontent.com/rensss/Scripts_fork/main/scripts/i-maotai.js, tag=i茅台自动预约, img-url=https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/ae/f4/18/aef41811-955e-e6b0-5d23-6763c2eef1ab/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/144x144.png, enabled=true
 ```
 ******************************************/
 const $ = new Env('i茅台'), service = $.http
 const isRequest = typeof $request !== 'undefined'
 var TG_BOT_TOKEN = $.getdata('imaotai_TG_BOT_TOKEN');
-var TG_BOT_TOKEN = "6236760057:AAEjuuA7o1cahnmve2TyNFZMojTVgttC-Go";
-var TG_USER_ID = "-1001948821987";
+var TG_USER_ID = $.getdata('imaotai_TG_USER_ID');
 var CryptoJS = loadCryptoJS()
 const maotai = new Maotai()
 // -----------------------------------------------------------------------------------------
 // 配置项
-// var province = $.getdata('imaotai__config__province') || '' // 省份
-// var city = $.getdata('imaotai__config__city') || '' // 城市
-// var itemList = $.getdata('imaotai__config__itemcode')?.split(',') || ['10213', '10214'] // 预约项
-var province = '北京市' // 省份
-var city = '北京市' // 城市
-var itemList = ['10941', '10942'] // 预约项
+var province = $.getdata('imaotai__config__province') || '' // 省份
+var city = $.getdata('imaotai__config__city') || '' // 城市
+var itemList = $.getdata('imaotai__config__itemcode')?.split(',') || ['10941', '10942'] // 预约项
+// var province = '北京市' // 省份
+// var city = '北京市' // 城市
+// var itemList = ['10941', '10942'] // 预约项
 var itemMap = {
     10941: '贵州茅台酒 (甲辰龙年)',
     10056: '53%vol 500ml 茅台1935',
@@ -43,8 +42,8 @@ var itemMap = {
 var address = '北京市北苑路安外北苑二号院航空科技大厦' // 详细地址
 var location = $.getdata('imaotai__config__location') || '' // 地址经纬度
 var shopid = $.getdata('imaotai__config__shopid') || '' // 商铺id
-// var isTravel = $.getdata('imaotai__config__istravel') || false // 是否开启茅运旅行
-var isTravel = true // 是否开启茅运旅行
+var isTravel = $.getdata('imaotai__config__istravel') || false // 是否开启茅运旅行
+// var isTravel = true // 是否开启茅运旅行
 var imaotaiParams = JSON.parse($.getdata('imaotai_params') || '{}') // 抓包参数
 var Message = '' // 消息内容
 var todayStr = $.time('yyyy_MM_dd')
@@ -86,10 +85,8 @@ var yesterdayReserveList = JSON.parse($.getdata(`imaotai_${yesterdayStr}_reserve
     var isApply = await maotai.isTodayApply() // 今日是否申购过
     if (isApply) {
         await maotai.doTravel() // 旅行
-        await maotai.sendTelegramMsg(Message)
     } else {
         await maotai.doMain() // 预约
-        await maotai.sendTelegramMsg(Message)
     }
     await showMsg(Message)
 })()
@@ -133,9 +130,7 @@ function queryAddress() {
  * @param {*} msg 消息内容
  */
 async function showMsg(msg) {
-    console.log(`\nshowMsg\n`)
     msg && $.msg($.name, '', msg)
-    await sendTelegramMsg(msg);
 }
 
 /**
