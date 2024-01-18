@@ -144,7 +144,7 @@ function sendTelegramMsg(msg) {
     }
     // console.log(`\n${msg}\n`)
     const currentTime = new Date().toLocaleString();
-    msg += `---- ${currentTime}`
+    msg += `\n\t\t\t${currentTime}`
     return new Promise((resolve) => {
         const opts = {
             url: `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`,
