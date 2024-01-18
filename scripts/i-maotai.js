@@ -94,7 +94,7 @@ var yesterdayReserveList = JSON.parse($.getdata(`imaotai_${yesterdayStr}_reserve
     // .finally(() => $.done())
     .catch((e) => {
         var str = `❌ ${$.name}, 失败! 原因: ${e}!`
-        sendTelegramMsg(str)
+        Message += str
         $.log('', str, '')
     })
     .finally(async () => {
@@ -156,15 +156,15 @@ function sendTelegramMsg(msg) {
         $.post(opts, (err, resp, data) => {
             try {
                 if (err) {
-                    console.log(`\n${JSON.stringify(err)}\n`);
+                    console.log(`${JSON.stringify(err)}\n`);
                 } else {
                     data = JSON.parse(data);
                     if (data.ok) {
-                        console.log(`\n🎉 Telegram Msg 发送成功。\n`);
+                        console.log(`🎉 Telegram Msg 发送成功。\n`);
                     } else if (data.error_code === 400) {
-                        console.log(`\n⚠️ Telegram Msg 发送失败。\n`);
+                        console.log(`⚠️ Telegram Msg 发送失败。\n`);
                     } else if (data.error_code === 401) {
-                        console.log(`\n⚠️ Telegram Msg 发送参数有误。\n`);
+                        console.log(`⚠️ Telegram Msg 发送参数有误。\n`);
                     }
                 }
             } catch (e) {
